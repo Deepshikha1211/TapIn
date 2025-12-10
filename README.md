@@ -1,174 +1,255 @@
 # TapIn
 
-TapIn is a full-stack application for recording/transcribing audio and turning it into searchable, summarized notes. This repository contains a frontend (Vite + React + TypeScript), a backend (Express + TypeScript + Prisma), worker services for summarization, and a small Python-based transcriber service.
+TapIn is a comprehensive voice-to-text note-taking application that transforms audio recordings into intelligent, AI-powered summaries. Built with a modern tech stack, it enables users to capture, transcribe, and collaborate on notes seamlessly.
 
-**Quick links**
+## ✨ Features
 
-- **Frontend:** `frontend`
-- **Backend:** `backend`
-- **Summarizer worker:** `summarizer-worker`
-- **Transcriber (Python):** `transcriber`
+- **🎤 Audio Recording**: Record audio directly in the browser
+- **📝 AI-Powered Transcription**: Automatic speech-to-text conversion using Whisper AI
+- **🤖 Smart Summarization**: AI-generated summaries using Google's Generative AI
+- **👥 Team Collaboration**: Create and manage teams with shared notes
+- **📊 Note Management**: Organize and access all your notes in one place
+- **🔐 Secure Authentication**: JWT-based authentication with cookie management
+- **🎨 Modern UI**: Responsive design with Tailwind CSS and smooth animations
 
-**Tech highlights**
+## 🏗️ Architecture
 
-- Frontend: Vite + React + TypeScript
-- Backend: Express (TypeScript), Prisma ORM
-- Background worker: Node TypeScript worker consuming Redis
-- Transcription: Python Flask service using Whisper (local model)
+TapIn follows a microservices architecture with the following components:
 
-## Repository Structure
+### Frontend
+- **Framework**: React 18 with TypeScript
+- **Routing**: React Router DOM
+- **State Management**: Recoil
+- **Styling**: Tailwind CSS
+- **UI Components**: Custom components with Framer Motion animations
+- **Build Tool**: Vite
 
-Top-level folders you’ll work with:
+### Backend
+- **Runtime**: Node.js with Express
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT with cookie-parser
+- **File Upload**: Multer for audio file handling
 
-- `frontend/` — React + Vite application (UI)
-- `backend/` — Express API, Prisma schema and migrations
-- `summarizer-worker/` — Worker service that reads from Redis and summarizes
-- `transcriber/` — Flask app that converts uploaded audio to text using Whisper
-- `common/` — shared TypeScript packages used by backend/worker
+### Transcriber Service
+- **Language**: Python with Flask
+- **AI Model**: OpenAI Whisper (base model)
+- **Audio Processing**: PyDub
+- **Queue**: Redis for job management
 
-## Prerequisites
+### Summarizer Worker
+- **Runtime**: Node.js with TypeScript
+- **AI**: Google Generative AI
+- **Database**: Prisma Client
+- **Queue**: Redis for background processing
 
-- Node.js >= 18 (LTS recommended)
-- npm (comes with Node.js)
-- For local transcription: Python 3.9+ with required packages and a Whisper model (installation steps below)
-- Redis (for worker/transcriber integration)
+## 🚀 Getting Started
 
-On Windows PowerShell, you can check versions:
+### Prerequisites
 
-```powershell
-node -v
-npm -v
-python --version
-redis-server --version
-```
+- Node.js (v18 or higher)
+- Python (v3.8 or higher)
+- PostgreSQL
+- Redis
+- npm or yarn
 
-## Environment variables
+### Installation
 
-Create `.env` files in services that need them (`backend/`, `summarizer-worker/`). Typical variables used by the backend and worker:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/notsoarsh/Tap-In.git
+   cd TapIn-master
+   ```
 
-- `PORT` — port for the service (backend default: `3000`)
-- `JWT_SECRET` — secret string for signing JWTs
-- `SALT` — random string used for hashing passwords
-- `FE_URL` — frontend URL (e.g. `http://localhost:5173`)
-- `DATABASE_URL` — Prisma database connection URL
-- Redis variables (if used by worker): `REDIS_URL` or host/port config
+2. **Install root dependencies**
+   ```bash
+   npm install
+   ```
 
-Example `.env` (backend):
+3. **Setup Backend**
+   ```bash
+   cd backend
+   npm install
+   
+   # Configure environment variables
+   cp .env.example .env
+   # Edit .env with your database URL, JWT secret, etc.
+   
+   # Run Prisma migrations
+   npx prisma migrate dev
+   npx prisma generate
+   ```
 
-```
+4. **Setup Frontend**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+5. **Setup Transcriber Service**
+   ```bash
+   cd transcriber
+   pip install -r requirements.txt
+   ```
+
+6. **Setup Summarizer Worker**
+   ```bash
+   cd summarizer-worker
+   npm install
+   
+   # Configure environment variables
+   cp .env.example .env
+   # Add your Google Generative AI API key
+   
+   # Run Prisma migrations
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/tapin"
+JWT_SECRET="your-secret-key"
 PORT=3000
-JWT_SECRET=supersecretjtw
-SALT=random_salt_value
-FE_URL=http://localhost:5173
-DATABASE_URL=file:./dev.db
 ```
 
-## Backend (Express + Prisma)
-
-1. Open a terminal and install dependencies:
-
-```powershell
-cd backend
-npm install
+#### Summarizer Worker (.env)
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/tapin"
+GOOGLE_API_KEY="your-google-api-key"
+REDIS_URL="redis://localhost:6379"
 ```
 
-2. Prepare the database and Prisma (local development):
-
-- If using SQLite (example dev DB):
-
-```powershell
-npx prisma generate
-npx prisma migrate dev --name init
+#### Transcriber (.env)
+```env
+REDIS_URL="redis://localhost:6379"
+FLASK_PORT=5000
 ```
 
-- If using a production DB or existing migrations:
+### Running the Application
 
-```powershell
-npx prisma generate
-npx prisma migrate deploy
+1. **Start Redis**
+   ```bash
+   redis-server
+   ```
+
+2. **Start PostgreSQL**
+   Ensure your PostgreSQL database is running
+
+3. **Start Backend**
+   ```bash
+   cd backend
+   npm run dev
+   ```
+
+4. **Start Frontend**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+5. **Start Transcriber Service**
+   ```bash
+   cd transcriber
+   python main.py
+   ```
+
+6. **Start Summarizer Worker**
+   ```bash
+   cd summarizer-worker
+   npm run dev
+   ```
+
+The application will be available at:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
+- Transcriber: `http://localhost:5000`
+
+## 📦 Project Structure
+
+```
+TapIn-master/
+├── backend/              # Express API server
+│   ├── prisma/          # Database schema and migrations
+│   └── src/             # Source code
+├── frontend/            # React application
+│   ├── src/
+│   │   ├── components/  # Reusable UI components
+│   │   ├── pages/       # Page components
+│   │   ├── store/       # Recoil state management
+│   │   └── utils/       # Utility functions
+│   └── public/          # Static assets
+├── transcriber/         # Python Flask transcription service
+├── summarizer-worker/   # Background job processor
+│   ├── prisma/         # Database schema
+│   └── src/            # Worker source code
+├── common/             # Shared TypeScript types and utilities
+└── PDF/                # PDF generation service
 ```
 
-3. Start the backend in dev mode:
+## 🔑 Key Technologies
 
-```powershell
-npm run dev
-```
+- **Frontend**: React, TypeScript, Tailwind CSS, Recoil, Vite
+- **Backend**: Node.js, Express, TypeScript, Prisma, PostgreSQL
+- **AI/ML**: OpenAI Whisper, Google Generative AI
+- **Authentication**: JWT, bcrypt
+- **Queue**: Redis
+- **Database**: PostgreSQL
+- **ORM**: Prisma
 
-This project exposes endpoints under `/api/v1/*`. The backend expects a cookie-based JWT named `token` for routes after authentication.
+## 🛠️ API Endpoints
 
-## Frontend (Vite + React)
+### Authentication
+- `POST /api/v1/user/register` - Register new user
+- `POST /api/v1/user/login` - User login
+- `GET /api/v1/user/logout` - User logout
 
-1. Install dependencies and run the dev server:
+### Notes
+- `GET /api/v1/notes` - Get all user notes
+- `GET /api/v1/notes/:id` - Get specific note
+- `POST /api/v1/notes` - Create new note
+- `PUT /api/v1/notes/:id` - Update note
+- `DELETE /api/v1/notes/:id` - Delete note
 
-```powershell
-cd frontend
-npm install
-npm run dev
-```
+### Teams
+- `POST /api/v1/teams` - Create team
+- `GET /api/v1/teams` - Get user teams
+- `POST /api/v1/teams/:id/members` - Add team member
+- `GET /api/v1/teams/:id/notes` - Get team notes
 
-2. Open the app in your browser at the Vite URL (usually `http://localhost:5173`).
+### Transcription
+- `POST /convert` - Convert audio to text
 
-## Summarizer Worker
+## 🤝 Contributing
 
-The worker consumes a Redis queue and triggers summarization logic. To run locally:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-```powershell
-cd summarizer-worker
-npm install
-npm run dev
-```
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Make sure Redis is running and the `DATABASE_URL` / Prisma migrations are applied if the worker needs DB access.
+## 📝 License
 
-## Transcriber (Python + Whisper)
+This project is licensed under the ISC License.
 
-The transcriber is a small Flask app that accepts audio uploads and pushes transcribed text to Redis for the worker.
+## 👥 Authors
 
-1. Create a virtual environment and install dependencies (example):
+- **Deepshikha1211** - [GitHub](https://github.com/Deepshikha1211)
 
-```powershell
-cd transcriber
-python -m venv .venv
-. .venv/Scripts/Activate.ps1
-pip install --upgrade pip
-pip install flask pydub redis requests
-# Whisper and its dependencies (you may prefer the official Whisper or OpenAI alternatives):
-pip install -U openai-whisper
-# You may need torch for whisper; see https://github.com/openai/whisper for platform-specific instructions
-```
+## 🙏 Acknowledgments
 
-2. Start the service:
+- OpenAI Whisper for transcription capabilities
+- Google Generative AI for summarization
+- The open-source community for amazing tools and libraries
 
-```powershell
-python main.py
-```
+## 📧 Contact
 
-The Flask server will listen on its default Flask dev port (5000) unless changed. The service expects a running Redis instance reachable at `localhost:6379` by default.
+For questions or support, please open an issue on GitHub or reach out through the contact page in the application.
 
-Notes: Whisper installs and model downloads can be large. For reliable production transcription, consider using a hosted speech-to-text API or a dedicated GPU environment.
+---
 
-## Running the full stack locally
-
-1. Start Redis.
-2. Start the database (or use SQLite) and run Prisma migrations (`backend`).
-3. Run the backend: `cd backend; npm run dev`.
-4. Run the summarizer worker: `cd summarizer-worker; npm run dev`.
-5. Run the transcriber (Python): `cd transcriber; python main.py`.
-6. Run the frontend: `cd frontend; npm run dev`.
-
-## Development notes
-
-- Backend uses cookie-based authentication with JWT (`token` cookie).
-- Sensitive values (JWT secret, SALT, DB credentials) must never be committed; use `.env` or a secrets manager.
-- Prisma migrations are in `backend/prisma/migrations`.
-
-## Contributing
-
-- Create an issue for bugs or features.
-- Open a pull request with a clear description and tests if applicable.
-
-## License & Contact
-
-This project does not include a license file by default — add a `LICENSE` (for example MIT) to make terms explicit.
-
-If you want help running or polishing this README (examples, badges, CI, Docker), tell me what to add and I’ll update it.
+Made with ❤️ by the TapIn team
